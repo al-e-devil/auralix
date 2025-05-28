@@ -1,0 +1,31 @@
+{
+    "name": "auralix-bot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/index.ts",
+    "scripts": {
+        "dev": "ts-node src/index.ts"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@hapi/boom": "^10.0.1",
+        "@nazi-team/baileys": "git@github.com:Skidy89/Baileys",
+        "boxen": "^8.0.1",
+        "chalk": "^5.4.1",
+        "figlet": "^1.8.1",
+        "gradient-string": "^3.0.0",
+        "ora": "^8.2.0",
+        "qrcode": "^1.5.4",
+        "qrcode-terminal": "^0.12.0"
+    },
+    "devDependencies": {
+        "@types/figlet": "^1.7.0",
+        "@types/node": "^22.15.21",
+        "@types/pino": "^7.0.4",
+        "@types/qrcode": "^1.5.5",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.8.3"
+    }
+}
