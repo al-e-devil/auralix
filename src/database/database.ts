@@ -3,6 +3,7 @@ import { Logger } from 'pino';
 import P from 'pino';
 import { performance } from 'perf_hooks';
 import * as Proto from '../../proto/database';
+import fs from 'fs';
 
 export const profiling = (name: string, func: () => any, logger: Logger) => {
     const start = performance.now()
@@ -36,6 +37,12 @@ export class database {
         });
         
         this.needProfiling = needProfiling;
+
+        const dir = require('path').dirname(path)
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true })
+        }
+
         this.db = new Database(path)
         this.db.exec(`
             PRAGMA journal_mode = WAL;
@@ -90,7 +97,7 @@ export class database {
                 this.db.transaction(() => {
                     this.db.prepare('INSERT OR REPLACE INTO storage (id, data) VALUES (?, ?)').run(1, Buffer.from(buffer));
                 })();
-            };
+            }
 
             if (this.needProfiling) profiling('write', writeOperation, this.logger);
             else await writeOperation();
@@ -101,4 +108,4 @@ export class database {
     }
 }
 
-export const db = new database({ path: './database/database.db', logger: P({ level: 'debug' }), needProfiling: true });
+export const db = new database({ path: './src/database/database.db', logger: P({ level: 'silent' }), needProfiling: true })

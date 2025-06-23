@@ -39,8 +39,8 @@ export default new class SQLite {
         const start = performance.now();
         const result = await fn();
         const end = performance.now();
-        logger.debug(`${name} took ${(end - start).toFixed(2)} ms`);
-        return result;
+        logger.debug(`${name} took ${(end - start).toFixed(2)} ms`)
+        return result
     }
 
     async AuthState(sessionId: string, filename: string, customLogger: Logger): Promise<{

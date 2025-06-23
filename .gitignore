@@ -8,3 +8,6 @@ db.json
 auth.db
 auth.db-shm
 auth.db-wal
+src/database/database.db
+src/database/database.db-shm
+src/database/database.db-wal

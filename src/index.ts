@@ -4,34 +4,40 @@ import {
     Browsers,
     DisconnectReason,
     fetchLatestBaileysVersion,
-    makeCacheableSignalKeyStore
+    makeCacheableSignalKeyStore,
+    generateWAMessageFromContent,
+    proto,
+    generateMessageIDV2
 } from "@nazi-team/baileys";
 
 import { Boom } from "@hapi/boom";
 import QRCode from "qrcode";
 import pino, { Logger } from "pino";
 import chalk from "chalk";
+import { format } from "util"
 
-import config from "./config";
-import { Sms, Socket } from "./lib/normalize"
+import { plugins } from "./config";
+import { Sms } from "./lib/normalize"
 import { groupMetadata, WASocket } from "./lib/core"
-import SQLite from "./lib/sqlite";
+import SQLite from "./lib/sqlite"
+import { db } from "./database/database"
 
 const start = async (): Promise<void> => {
     const DEFAULT_CACHE_NAME = "open"
     let retries = 0
-    const session = new Map<string, WASocket>()
+    const session = new Map<string, ReturnType<typeof WASocket>>()
     const logger: Logger = pino({ level: "silent" })
     let { state, saveCreds } = await SQLite.AuthState('socket', 'auth.db', logger)
 
     let { version } = await fetchLatestBaileysVersion()
-    let auralix: WASocket | null = new WASocket({
-        auth: { creds: state.creds as AuthenticationCreds, keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' })) },
+    let auralix = WASocket({
+        auth: { creds: state.creds as AuthenticationCreds, keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'debug' })) },
         cachedGroupMetadata: async (jid: string) => groupMetadata.get(jid),
         logger: logger,
         version: version
     })
 
+    await db.read()
     auralix?.ev.process(async (ev: Partial<BaileysEventMap>) => {
         if (!ev) return
         if (ev['creds.update']) await saveCreds()
@@ -83,9 +89,28 @@ const start = async (): Promise<void> => {
             }
         }
         if (ev["messages.upsert"]) {
-            for (const m of ev["messages.upsert"].messages) {
-                console.log(JSON.stringify(m, null, 2))
+            for (const message of ev["messages.upsert"].messages) {
+                if (ev["messages.upsert"].type === "notify" && message.message) {
+                    const m = await Sms(auralix, message)
+
+                    console.log("[ ! ]" + JSON.stringify(m, null, 2))
+                    let args = {
+                        auralix,
+                        db
+                    }
+
+                    for (const plugin of plugins) {
+                        const isCommand = !plugin.disable && plugin.command ? (Array.isArray(plugin.command) ? plugin.command.includes(m.command) : plugin.command.test(m.body)) : undefined
+
+                        console.log("[ ! ]" + isCommand)
+                        console.log("[ ! ]" + plugin)
+                        if (plugin.exec && typeof plugin.exec === 'function' && isCommand) {
+                            await plugin.exec.call(plugin, m, args)
+                        }
+                    }
+                }
             }
+
         }
     })
 }
