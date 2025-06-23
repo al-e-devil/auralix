@@ -23,7 +23,7 @@
         "sqlite3": "^5.1.7"
     },
     "devDependencies": {
-        "protobufjs": "^7.5.3",
+        "protobufjs": "6.11.3",
         "ts-node": "^10.9.2",
         "typescript": "^5.8.3"
     }

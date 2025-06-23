@@ -1,4 +1,4 @@
 #!/bin/bash
 
-npx pbjs -t static-module -o database.js database.proto
-npx pbts -o database.d.ts database.js
+npx pbjs -t static-module -o proto/database.js proto/database.proto
+npx pbts -o proto/database.d.ts proto/database.js
