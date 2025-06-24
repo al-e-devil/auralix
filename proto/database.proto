@@ -3,20 +3,18 @@ syntax = "proto3";
 package database;
 
 message user {
-    // create ur own db
     string name = 1;
-    bool banned = 2;
-    int32 age = 3;
+    string number = 2;
+    bool banned = 3;
+    int32 age = 4;
     
 }
 message chat {
-    // create ur own db
     bool banned = 1;
     bool welcome = 2;
 }
 
 message config {
-    // create ur own db
     bool autoRead = 1;
 }
 
