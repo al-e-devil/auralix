@@ -1,20 +1,14 @@
 import {
     AuthenticationCreds,
     BaileysEventMap,
-    Browsers,
     DisconnectReason,
     fetchLatestBaileysVersion,
-    makeCacheableSignalKeyStore,
-    generateWAMessageFromContent,
-    proto,
-    generateMessageIDV2
+    makeCacheableSignalKeyStore
 } from "@nazi-team/baileys";
 
 import { Boom } from "@hapi/boom";
 import QRCode from "qrcode";
 import pino, { Logger } from "pino";
-import chalk from "chalk";
-import { format } from "util"
 
 import { plugins } from "./config";
 import { Sms } from "./lib/normalize"
@@ -46,7 +40,7 @@ const start = async (): Promise<void> => {
             const { qr, connection, lastDisconnect } = up
 
             if (qr) {
-                console.log(chalk.greenBright('[ ! ]') + "scan this qr")
+                console.log('[ ! ]' + "scan this qr")
                 QRCode.toString(qr, {
                     type: "terminal",
                     errorCorrectionLevel: "L",
@@ -55,7 +49,7 @@ const start = async (): Promise<void> => {
             switch (connection) {
                 case 'open':
                     return
-                case 'close':
+                case 'close': {
                     const reason = new Boom(lastDisconnect?.error).output.statusCode
                     let text: string
                     switch (reason) {
@@ -68,24 +62,29 @@ const start = async (): Promise<void> => {
                                 retries++
                                 await start()
                             } else {
-                                text = `[ ! ] connection closed: ${reason in DisconnectReason ? DisconnectReason[reason] : reason}`
-                                console.log(chalk.redBright(text))
+                                text = `[ ! ] connection closed: ${reason}`
+                                console.log(text)
                                 session.delete(DEFAULT_CACHE_NAME)
                                 process.exit(1)
                             }
                             break
                         case DisconnectReason.connectionClosed:
                         case DisconnectReason.connectionReplaced:
-                            text = `[ ! ] connection closed: ${reason in DisconnectReason ? DisconnectReason[reason] : reason}`
-                            console.log(chalk.redBright(text))
+                            text = `[ ! ] connection closed: ${reason}`
+                            console.log(text)
                             session.delete(DEFAULT_CACHE_NAME)
                             break
                         case DisconnectReason.restartRequired:
                             await start()
                             break
-
+                        default:
+                            text = `[ ! ] connection closed: ${reason}`
+                            console.log(text)
+                            session.delete(DEFAULT_CACHE_NAME)
+                            break
                     }
                     break
+                }
             }
         }
         if (ev["messages.upsert"]) {
@@ -114,4 +113,4 @@ const start = async (): Promise<void> => {
         }
     })
 }
-start().then().catch(console.error)
+start().catch(console.error)

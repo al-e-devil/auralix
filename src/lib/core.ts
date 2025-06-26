@@ -8,7 +8,6 @@ export const groupMetadata = new Map<string, GroupMetadata>()
 
 export interface AuralixExtensions {
     fetchGroup(jid: string): Promise<GroupMetadata | undefined>
-
 }
 
 const auralixExtensions: AuralixExtensions = {

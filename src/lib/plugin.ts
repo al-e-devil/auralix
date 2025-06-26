@@ -29,8 +29,7 @@ export default class Plugins {
         for (const result of entries) {
             const _path = path.join(folder, result.name)
             if (result.isDirectory()) {
-                // Log para validar recorrido de subcarpetas
-                console.log(`[PLUGIN] Entrando en subcarpeta: ${_path}`)
+            logger.debug(`[PLUGIN] Entrando en subcarpeta: ${_path}`)
                 promises.push(this.readPlugin(_path))
             }
             if (result.isFile()) {
