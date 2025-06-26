@@ -11,10 +11,10 @@ import QRCode from "qrcode";
 import pino, { Logger } from "pino";
 
 import { plugins } from "./config";
-import { Sms } from "./lib/normalize"
-import { groupMetadata, WASocket } from "./lib/core"
-import SQLite from "./lib/sqlite"
-import { db } from "./database/database"
+import { Sms } from "./Defaults/normalize"
+import { groupMetadata, WASocket } from "./Defaults/core"
+import SQLite from "./Defaults/sqlite"
+import { db } from "./Database/database"
 
 const start = async (): Promise<void> => {
     const DEFAULT_CACHE_NAME = "open"

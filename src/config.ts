@@ -1,4 +1,4 @@
-import Plugins from "./lib/plugin"
+import Plugins from "./Defaults/plugin"
 
 const config = {
     owner: {
@@ -13,7 +13,7 @@ const config = {
     prefix: ["@"]
 }
 
-const plugin = new Plugins('src/plugins')
+const plugin = new Plugins('src/Plugins')
 export const pluginsReady = plugin.readPlugin(plugin.folder).then(() => plugin.plugins)
 export const plugins = plugin.plugins
 

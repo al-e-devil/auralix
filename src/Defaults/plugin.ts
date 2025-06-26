@@ -1,6 +1,7 @@
 import fs from "fs"
 import path from "path"
 import { pathToFileURL } from "url"
+import logger from "../Utils/logger"
 
 type Plugin = {
     name: string
@@ -29,12 +30,11 @@ export default class Plugins {
         for (const result of entries) {
             const _path = path.join(folder, result.name)
             if (result.isDirectory()) {
-            logger.debug(`[PLUGIN] Entrando en subcarpeta: ${_path}`)
+                logger.info({ path: _path }, `[PLUGIN] Entrando en subcarpeta`)
                 promises.push(this.readPlugin(_path))
             }
             if (result.isFile()) {
-                // Log para validar archivo encontrado
-                console.log(`[PLUGIN] Encontrado archivo: ${_path}`)
+                logger.info({ path: _path }, `[PLUGIN] Encontrado archivo`)
                 promises.push(this.loadPlugin(_path, result.name))
             }
         }
@@ -49,8 +49,7 @@ export default class Plugins {
         const { default: plugin } = await import(url)
 
         if (plugin) {
-            // Log para validar plugin cargado
-            console.log(`[PLUGIN] Cargado plugin: ${filename} (${_path})`)
+            logger.info({ filename, path: _path }, `[PLUGIN] Cargado plugin`)
             this.plugins.push({
                 name: filename,
                 disable: false,
